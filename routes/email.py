@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from observability.tracing import tracer
 from response import Response
 
-blueprint = APIBlueprint('rolldice', __name__, url_prefix='/v1/email',
+blueprint = APIBlueprint('email', __name__, url_prefix='/v1/email',
                          abp_tags=[Tag(name="Email Endpoint")])
 
 

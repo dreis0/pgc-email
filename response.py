@@ -7,3 +7,7 @@ class Response(BaseModel):
 
     def as_return(self):
         return self.dict(), self.status
+
+
+class ResponseWithContent(Response):
+    content: dict = Field({}, description="The content of the response")

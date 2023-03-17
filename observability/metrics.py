@@ -43,7 +43,7 @@ def configure_metrics(port, resource):
     start_http_server(port, addr="0.0.0.0")
 
 
-# Metrics middleware class
+# Metrics middlewares class
 class MetricsMiddleware:
     app: Flask
     start_time: float
@@ -52,7 +52,7 @@ class MetricsMiddleware:
 
     def __init__(self, app):
         self.app = app
-        self.app.logger.info("Configuring metrics middleware")
+        self.app.logger.info("Configuring metrics middlewares")
 
         self.app.before_request(self.before_request)
         self.app.after_request(self.after_request)
