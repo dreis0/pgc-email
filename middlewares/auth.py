@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from flask import request, Flask
@@ -23,15 +24,18 @@ class AuthMiddleware:
 
     def authenticate(self):
         self.app.logger.info("Authenticating request %s", request.path)
+
         if not any(element.lower() in request.path.lower() for element in self.white_listed_routes):
             token = request.headers.get("Authorization")
             if token is None:
                 return Response(message=f"not authenticated: no token present", status=401).as_return()
             else:
-                try:
-                    payload = jwt.decode(token, self.secret, algorithms=["HS256"])
+                master = os.getenv('MASTER_KEY')
+                if token != master:
+                    try:
+                        payload = jwt.decode(token, self.secret, algorithms=["HS256"])
 
-                    if payload["exp"] < datetime.now().timestamp():
-                        return Response(message=f"not authenticated: expired", status=401).as_return()
-                except Exception as e:
-                    return Response(message=f"not authenticated: {e}", status=500).as_return()
+                        if payload["exp"] < datetime.now().timestamp():
+                            return Response(message=f"not authenticated: expired", status=401).as_return()
+                    except Exception as e:
+                        return Response(message=f"not authenticated: {e}", status=500).as_return()

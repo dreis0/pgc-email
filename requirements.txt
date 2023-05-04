@@ -1,4 +1,4 @@
-flask
+flask~=2.3.2
 opentelemetry-distro
 opentelemetry-exporter-otlp
 opentelemetry-exporter-prometheus
@@ -7,9 +7,10 @@ opentelemetry-exporter-otlp-proto-grpc
 opentelemetry-instrumentation-flask
 Flask-SQLAlchemy
 psycopg2-binary
-bcrypt
-pyjwt
+bcrypt~=4.0.1
+pyjwt~=2.6.0
 opentelemetry-instrumentation-sqlalchemy
 flask_openapi3
-python-dotenv
-pydantic
+python-dotenv~=1.0.0
+pydantic~=1.10.7
+SQLAlchemy~=2.0.12

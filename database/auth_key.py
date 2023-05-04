@@ -14,6 +14,7 @@ class AuthKey(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     key: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str] = mapped_column(String(255), nullable=True)
+    enabled: Mapped[bool] = mapped_column(String(255), nullable=False, default=True)
 
     def to_dict(self):
         return self.__dict__

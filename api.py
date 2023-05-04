@@ -1,4 +1,4 @@
-from database import set_db_url
+from database import set_database_uri_from_env, db
 from database.configure import configure_database
 from middlewares.auth import AuthMiddleware
 from observability import metrics, tracing, logging
@@ -12,7 +12,7 @@ from flask_openapi3 import OpenAPI, Info
 from dotenv import load_dotenv
 
 from routes.email import blueprint as email_blueprint
-from routes.auth import AuthRoute
+from routes.auth import blueprint as auth_route
 
 is_dev = os.environ['ENV'] == 'development'
 
@@ -30,8 +30,8 @@ if is_dev:
 
 app.logger.info("Configuring app")
 
-set_db_url(app, os.getenv("DATABASE_USER"), os.getenv("DATABASE_PASSWORD"), os.getenv("DATABASE_HOST"), int(os.getenv("DATABASE_PORT")), os.getenv("DATABASE_NAME"))
-db = SQLAlchemy(app)
+set_database_uri_from_env(app)
+db.init_app(app)
 configure_database(app, db)
 
 # add observability middlewares
@@ -53,7 +53,7 @@ logging.configure_logging(app, otel_collector_url, resource)
 AuthMiddleware(app, "super-secret")
 
 # register routes
-app.register_api(AuthRoute(app, db).blueprint)
+app.register_api(auth_route)
 app.register_api(email_blueprint)
 
 app.logger.info("App configured")
