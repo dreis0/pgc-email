@@ -1,5 +1,3 @@
-# from database.configure import configure_database
-# from middlewares.auth import AuthMiddleware
 from database import set_db_url
 from database.configure import configure_database
 from middlewares.auth import AuthMiddleware
@@ -15,8 +13,6 @@ from dotenv import load_dotenv
 
 from routes.email import blueprint as email_blueprint
 from routes.auth import AuthRoute
-
-# from routes.auth import AuthEndpoint
 
 is_dev = os.environ['ENV'] == 'development'
 

@@ -39,7 +39,6 @@ def configure_metrics(port, resource):
     reader = PrometheusMetricReader()
     provider = MeterProvider(resource=resource, metric_readers=[reader])
     metrics.set_meter_provider(provider)
-    print(f"======> port {port}")
     start_http_server(port, addr="0.0.0.0")
 
 
