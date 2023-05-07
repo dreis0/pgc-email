@@ -5,9 +5,9 @@ from flask import request, current_app
 from response import Response
 
 
-def require_master_auth(f):
+def require_master_auth(f, *args, **kwargs):
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper():
         auth = request.headers.get("Authorization")
         if auth is None:
             return Response(message=f"not authenticated: no token present", status=401).as_return()

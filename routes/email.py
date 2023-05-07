@@ -8,8 +8,9 @@ from pydantic import BaseModel
 from observability.tracing import tracer
 from response import Response
 
+tag = Tag(name="Email", description="Rotas para envio de emails")
 blueprint = APIBlueprint('email', __name__, url_prefix='/v1/email',
-                         abp_tags=[Tag(name="Email Endpoint")])
+                         abp_tags=[tag])
 
 
 class SendEmailBody(BaseModel):
@@ -22,11 +23,10 @@ sender = os.getenv("EMAIL_SENDER")
 
 
 @blueprint.post('/',
+                summary="Envia um email",
                 description=f"Sends an email from {sender} to the specified email address",
-                responses={
-                    "200": Response,
-                    "400": Response,
-                })
+                responses={"200": Response, "400": Response},
+                tags=[tag])
 def send_email(body: SendEmailBody):
     server = os.getenv("EMAIL_SMTP_HOST")
     port = int(os.getenv("EMAIL_SMTP_PORT"))

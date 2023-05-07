@@ -12,7 +12,7 @@ from flask_openapi3 import OpenAPI, Info
 from dotenv import load_dotenv
 
 from routes.email import blueprint as email_blueprint
-from routes.auth import blueprint as auth_route
+from routes.auth import blueprint as auth_route, b
 
 is_dev = os.environ['ENV'] == 'development'
 
@@ -54,6 +54,7 @@ AuthMiddleware(app, "super-secret")
 
 # register routes
 app.register_api(auth_route)
+app.register_blueprint(b)
 app.register_api(email_blueprint)
 
 app.logger.info("App configured")
