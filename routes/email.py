@@ -19,18 +19,18 @@ class SendEmailBody(BaseModel):
     body: str
 
 
-sender = os.getenv("EMAIL_SENDER")
 
 
 @blueprint.post('/',
                 summary="Envia um email",
-                description=f"Sends an email from {sender} to the specified email address",
+                description=f"Sends an email to the specified email address",
                 responses={"200": Response, "400": Response},
                 tags=[tag])
 def send_email(body: SendEmailBody):
     server = os.getenv("EMAIL_SMTP_HOST")
     port = int(os.getenv("EMAIL_SMTP_PORT"))
     password = os.getenv("EMAIL_PASSWORD")
+    sender = os.getenv("EMAIL_SENDER")
 
     message = MIMEMultipart()
     message['From'] = sender
@@ -41,9 +41,12 @@ def send_email(body: SendEmailBody):
         span.set_attribute("email.to", body.email)
 
         with smtplib.SMTP(server, port) as server:
-            server.starttls()
-            server.login(sender, password)
-            text = message.as_string()
-            server.sendmail(sender, body.email, text)
+            try:
+                server.starttls()
+                server.login(sender, password)
+                text = message.as_string()
+                server.sendmail(sender, body.email, text)
+            except Exception as e:
+                return Response(message=str(e), status=500).as_return()
 
     return Response(message="Email sent successfully", status=200).as_return()

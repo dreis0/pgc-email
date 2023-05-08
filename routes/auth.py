@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import bcrypt as bcrypt
 import jwt
-from flask import app, current_app, Blueprint, request
+from flask import request
 from flask_openapi3 import APIBlueprint, Tag
 from flask_sqlalchemy.session import Session
 from pydantic import BaseModel, Field
@@ -39,9 +39,6 @@ class KeyViewModel(BaseModel):
 secret = os.getenv("AUTH_SECRET")
 blueprint = APIBlueprint('auth', __name__, url_prefix='/v1/auth')
 tag = Tag(name="Auth", description="Rotas de Autenticação")
-
-b = Blueprint('test', __name__, url_prefix='/v1/auth')
-
 
 @require_master_auth
 @blueprint.post('/keys', summary="Cadastra uma nova chave",
@@ -113,8 +110,10 @@ def list_keys():
 def login(body: LoginBody):
     session = Session(db)
 
-    query = select(AuthKey).where(AuthKey.name == body.name).where(AuthKey.enabled == True)
-    user = session.execute(query).scalars().first()
+    user = session.query(AuthKey) \
+        .filter_by(name=body.name) \
+        .filter_by(enabled=True) \
+        .first()
 
     if user is None:
         return Response(message="Account does not exist", status=400).as_return()
@@ -129,9 +128,8 @@ def login(body: LoginBody):
 
 def generate_token(name):
     expiration = int(os.getenv("AUTH_EXPIRATION"))
-    algorithm = os.getenv("AUTH_ALGORITHM")
     payload = {
-        'exp': datetime.utcnow() + timedelta(seconds=expiration),
+        'exp': (datetime.utcnow() + timedelta(seconds=expiration)),
         'iat': datetime.utcnow(),
         'sub': name
     }
@@ -139,5 +137,4 @@ def generate_token(name):
     return jwt.encode(
         payload,
         secret,
-        algorithm=algorithm
     )

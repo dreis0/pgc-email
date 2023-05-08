@@ -7,12 +7,11 @@ import os
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
-from flask_sqlalchemy import SQLAlchemy
 from flask_openapi3 import OpenAPI, Info
 from dotenv import load_dotenv
 
 from routes.email import blueprint as email_blueprint
-from routes.auth import blueprint as auth_route, b
+from routes.auth import blueprint as auth_route
 
 is_dev = os.environ['ENV'] == 'development'
 
@@ -50,11 +49,10 @@ tracing.configure_tracing(otel_collector_url, resource)
 logging.configure_logging(app, otel_collector_url, resource)
 
 # add custom middlewares
-AuthMiddleware(app, "super-secret")
+AuthMiddleware(app, os.getenv("AUTH_SECRET"))
 
 # register routes
 app.register_api(auth_route)
-app.register_blueprint(b)
 app.register_api(email_blueprint)
 
 app.logger.info("App configured")

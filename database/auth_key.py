@@ -1,5 +1,5 @@
-from sqlalchemy import String
-from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
+from sqlalchemy import String, Boolean
+from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
@@ -14,7 +14,7 @@ class AuthKey(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     key: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str] = mapped_column(String(255), nullable=True)
-    enabled: Mapped[bool] = mapped_column(String(255), nullable=False, default=True)
+    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     def to_dict(self):
         return self.__dict__
