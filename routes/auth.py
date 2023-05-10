@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timedelta
 
 import bcrypt as bcrypt
@@ -9,6 +8,7 @@ from flask_sqlalchemy.session import Session
 from pydantic import BaseModel, Field
 from sqlalchemy import select, insert
 
+from config import app_config
 from database import db
 from database.auth_key import AuthKey
 from middlewares.master_auth import require_master_auth
@@ -36,7 +36,6 @@ class KeyViewModel(BaseModel):
         self.enabled = enabled
 
 
-secret = os.getenv("AUTH_SECRET")
 blueprint = APIBlueprint('auth', __name__, url_prefix='/v1/auth')
 tag = Tag(name="Auth", description="Rotas de Autenticação")
 
@@ -127,14 +126,13 @@ def login(body: LoginBody):
 
 
 def generate_token(name):
-    expiration = int(os.getenv("AUTH_EXPIRATION"))
     payload = {
-        'exp': (datetime.utcnow() + timedelta(seconds=expiration)),
+        'exp': (datetime.utcnow() + timedelta(seconds=app_config.auth.expiration)),
         'iat': datetime.utcnow(),
         'sub': name
     }
 
     return jwt.encode(
         payload,
-        secret,
+        app_config.auth.secret,
     )
