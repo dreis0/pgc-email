@@ -9,6 +9,6 @@ tracer = trace.get_tracer(__name__)
 
 def configure_tracing(trace_collector_endpoint, resource):
     provider = TracerProvider(resource=resource)
-    processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=trace_collector_endpoint))
+    processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=trace_collector_endpoint, insecure=True))
     provider.add_span_processor(processor)
     trace.set_tracer_provider(provider)
