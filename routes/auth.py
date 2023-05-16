@@ -84,7 +84,7 @@ def revoke_key():
         .first()
 
     if key is None:
-        return Response(message="Account does not exist", status=400).as_return()
+        return Response(message="Account does not exist", status=404).as_return()
     else:
         key.enabled = False
         session.commit()

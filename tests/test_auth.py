@@ -158,3 +158,125 @@ def test_get_token_wrong_key_should_fail(client):
     )
 
     assert response.status_code == 401
+
+
+def test_list_keys_should_succeed(client):
+    response = client.get(
+        "/v1/auth/keys",
+        headers={
+            "Authorization": app_config.auth.admin_key
+        }
+    )
+
+    assert response.status_code == 200
+
+
+def test_list_keys_no_admin_key_should_fail(client):
+    response = client.get(
+        "/v1/auth/keys"
+    )
+
+    assert response.status_code == 401
+
+
+def test_list_keys_wrong_admin_key_should_fail(client):
+    response = client.get(
+        "/v1/auth/keys",
+        headers={
+            "Authorization": "wrong_key"
+        }
+    )
+
+    assert response.status_code == 403
+
+
+def test_revoke_key_should_succeed(app, client):
+    name = ''.join(random.choices(string.ascii_lowercase, k=5))
+    response = client.post(
+        "/v1/auth/keys",
+        json={
+            "name": name,
+            "key": "test",
+        },
+        headers={
+            "Authorization": app_config.auth.admin_key
+        }
+    )
+
+    assert response.status_code == 200
+
+    response = client.delete(
+        f"/v1/auth/keys/{name}",
+        headers={
+            "Authorization": app_config.auth.admin_key
+        }
+    )
+
+    assert response.status_code == 200
+
+    with app.app_context():
+        session = Session(db)
+
+        key = session.query(AuthKey) \
+            .filter_by(name=name) \
+            .first()
+
+        assert key is not None
+        assert key.enabled is False
+
+
+def test_revoke_key_already_disabled_should_fail(app, client):
+    name = ''.join(random.choices(string.ascii_lowercase, k=5))
+    response = client.post(
+        "/v1/auth/keys",
+        json={
+            "name": name,
+            "key": "test",
+        },
+        headers={
+            "Authorization": app_config.auth.admin_key
+        }
+    )
+
+    assert response.status_code == 200
+
+    response = client.delete(
+        f"/v1/auth/keys/{name}",
+        headers={
+            "Authorization": app_config.auth.admin_key
+        }
+    )
+
+    assert response.status_code == 200
+
+    response = client.delete(
+        f"/v1/auth/keys/{name}",
+        headers={
+            "Authorization": app_config.auth.admin_key
+        }
+    )
+
+    assert response.status_code == 404
+
+
+def test_revoke_key_key_not_found_should_fail(client):
+    name = ''.join(random.choices(string.ascii_lowercase, k=5))
+    response = client.delete(
+        f"/v1/auth/keys/{name}",
+        headers={
+            "Authorization": app_config.auth.admin_key
+        }
+    )
+
+    assert response.status_code == 404
+
+
+def test_revoke_key_no_admin_key_should_fail(client):
+    response = client.delete(
+        f"/v1/auth/keys/not-found",
+        headers={
+            "Authorization": "wrong_key"
+        }
+    )
+
+    assert response.status_code == 403
