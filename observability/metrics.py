@@ -45,9 +45,9 @@ def configure_metrics(port, resource):
 # Metrics middlewares class
 class MetricsMiddleware:
     app: Flask
-    start_time: float
-    method: str
-    path: str
+    start_time: float = 0
+    method: str = ""
+    path: str = ""
 
     def __init__(self, app):
         self.app = app

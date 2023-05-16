@@ -4,22 +4,20 @@ from datetime import datetime
 from flask import request, Flask
 import jwt
 
+from config import app_config
 from response import Response
 
 
 class AuthMiddleware:
-    white_listed_routes = [
-        "/auth",
-        "/openapi",
-        "favicon.ico"
-    ]
+    white_listed_routes = []
 
     secret = None
     app = None
 
-    def __init__(self, app: Flask, secret):
+    def __init__(self, app: Flask, secret, white_listed_routes=None):
         self.secret = secret
         self.app = app
+        self.white_listed_routes = white_listed_routes if white_listed_routes is not None else []
         app.before_request(self.authenticate)
 
     def authenticate(self):
@@ -30,8 +28,7 @@ class AuthMiddleware:
             if token is None:
                 return Response(message=f"not authenticated: no token present", status=401).as_return()
             else:
-                master = os.getenv('MASTER_KEY')
-                if token != master:
+                if token != app_config.auth.admin_key:
                     try:
                         payload = jwt.decode(token, self.secret, algorithms=["HS256"])
 
