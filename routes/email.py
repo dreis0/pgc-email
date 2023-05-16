@@ -1,4 +1,4 @@
-import os
+import re
 import smtplib
 from email.mime.multipart import MIMEMultipart
 
@@ -20,12 +20,18 @@ class SendEmailBody(BaseModel):
     body: str
 
 
-@blueprint.post('/',
+@blueprint.post('',
                 summary="Envia um email",
                 description=f"Sends an email to the specified email address",
                 responses={"200": Response, "400": Response},
                 tags=[tag])
 def send_email(body: SendEmailBody):
+    if not body.email or not body.subject or not body.body:
+        return Response(message="email, subject e body não podem ser vazios", status=400).as_return()
+
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", body.email):
+        return Response(message="email inválido", status=400).as_return()
+
     message = MIMEMultipart()
     message['From'] = app_config.email.sender
     message['To'] = body.email

@@ -12,8 +12,9 @@ from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from flask_openapi3 import OpenAPI, Info
 
-from routes.email import blueprint as email_blueprint
-from routes.auth import blueprint as auth_route
+from routes.email import blueprint as email_routes
+from routes.auth import blueprint as auth_routes
+from routes.healthcheck import blueprint as healthcheck_route
 
 
 def create_app():
@@ -37,7 +38,8 @@ def configure_auth(app):
     AuthMiddleware(app, app_config.auth.secret, white_listed_routes=[
         "/auth",
         "/openapi",
-        "favicon.ico"
+        "favicon.ico",
+        "/healthcheck",
     ])
 
     AdminAuthMiddleware(app, app_config.auth.admin_key, protected_routes=["/auth/keys"])
@@ -63,8 +65,9 @@ def configure_middlewares(app):
 
 def configure_routes(app):
     # register routes
-    app.register_api(auth_route)
-    app.register_api(email_blueprint)
+    app.register_api(auth_routes)
+    app.register_api(email_routes)
+    app.register_api(healthcheck_route)
 
 
 def run():
