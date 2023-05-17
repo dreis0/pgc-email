@@ -13,6 +13,7 @@ from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from flask_openapi3 import OpenAPI, Info
 
 from routes.email import blueprint as email_routes
+from routes.email_v2 import blueprint as email_routes_v2
 from routes.auth import blueprint as auth_routes
 from routes.healthcheck import blueprint as healthcheck_route
 
@@ -65,9 +66,10 @@ def configure_middlewares(app):
 
 def configure_routes(app):
     # register routes
+    app.register_api(healthcheck_route)
     app.register_api(auth_routes)
     app.register_api(email_routes)
-    app.register_api(healthcheck_route)
+    app.register_api(email_routes_v2)
 
 
 def run():
