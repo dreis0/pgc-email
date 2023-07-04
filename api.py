@@ -5,6 +5,7 @@ from database import db
 from database.configure import configure_database
 from middlewares.admin_auth import AdminAuthMiddleware
 from middlewares.auth import AuthMiddleware
+from middlewares.error_handling import handle_error
 from observability import metrics, tracing, logging
 
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
@@ -63,6 +64,8 @@ def configure_middlewares(app):
     tracing.configure_tracing(app_config.observability.collector_url, resource)
     logging.configure_logging(app, app_config.observability.collector_url, resource)
 
+    app.register_error_handler(500, handle_error)
+
 
 def configure_routes(app):
     # register routes
@@ -78,8 +81,8 @@ def run():
     configure_env(app)
     configure_db(app)
     configure_auth(app)
-    configure_middlewares(app)
     configure_routes(app)
+    configure_middlewares(app)
 
     app.run(debug=app_config.is_dev(), port=app_config.port, host="0.0.0.0", use_reloader=False)
 
