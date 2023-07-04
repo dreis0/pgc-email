@@ -2,8 +2,8 @@ import datetime
 
 from opentelemetry import metrics
 from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.exporter.prometheus import PrometheusMetricReader
-from prometheus_client import start_http_server
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
 from flask import Flask, request
 import time
 
@@ -35,11 +35,12 @@ database_latency = meter.create_histogram(
 )
 
 
-def configure_metrics(port, resource):
-    reader = PrometheusMetricReader()
+def configure_metrics(collector_endpoint, resource):
+    reader = PeriodicExportingMetricReader(
+        OTLPMetricExporter(collector_endpoint, insecure=True)
+    )
     provider = MeterProvider(resource=resource, metric_readers=[reader])
     metrics.set_meter_provider(provider)
-    start_http_server(port, addr="0.0.0.0")
 
 
 # Metrics middlewares class

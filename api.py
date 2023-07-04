@@ -55,7 +55,7 @@ def configure_middlewares(app):
     with app.app_context():
         SQLAlchemyInstrumentor().instrument(engine=db.engine, enable_commenter=True)
 
-    metrics.configure_metrics(app_config.observability.prometheus_port, resource)
+    metrics.configure_metrics(app_config.observability.collector_url, resource)
     metrics.MetricsMiddleware(app)
     metrics.DatabaseMetrics()
 
